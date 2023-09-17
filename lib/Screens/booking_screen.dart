@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:get/get.dart';
-import 'package:flutter_osm_plugin/flutter_osm_plugin.dart' as osm;
 import 'package:latlong2/latlong.dart';
 import 'package:parkit/Controllers/details_controller.dart';
+import 'package:parkit/Screens/PayScreen.dart';
 import 'dart:math';
-import 'package:vector_math/vector_math.dart ' as vr;
+import 'package:vector_math/vector_math.dart' as v;
+import 'package:flutter/cupertino.dart';
 class BookingScreen extends StatefulWidget {
   BookingScreen({super.key,required this.lat,required this.lon,required this.address});
   double lat;
@@ -21,7 +21,8 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   final DetailsController detailsController=Get.put(DetailsController());
   double distance1=0.0;
-
+  TimeOfDay Artime = TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay Detime = TimeOfDay(hour: 0, minute: 0);
   DateTime date = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
   final List<LatLng> routePoints = [];
   @override
@@ -42,10 +43,10 @@ class _BookingScreenState extends State<BookingScreen> {
     const double earthRadius = 6371; // Earth's radius in kilometers (use 3959 for miles)
 
     // Convert latitude and longitude from degrees to radians
-    double lat1Rad = vr.radians(lat1);
-    double lon1Rad = vr.radians(lon1);
-    double lat2Rad = vr.radians(lat2);
-    double lon2Rad = vr.radians(lon2);
+    double lat1Rad = v.radians(lat1);
+    double lon1Rad = v.radians(lon1);
+    double lat2Rad = v.radians(lat2);
+    double lon2Rad =  v.radians(lon2);
 
     // Haversine formula
     double dLat = lat2Rad - lat1Rad;
@@ -65,11 +66,58 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomSheet: BottomSheet(
+        elevation: 10,
+        enableDrag: false,
+        builder: (context) {
+          return Padding(
+            padding: EdgeInsets.all(10),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              height: MediaQuery.of(context).size.height * 0.06,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: Color(0xff8843b7),
+                borderRadius: BorderRadius.circular(40),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "\Rs. Amount",
+                    // "\Rs. ${totalAmount.toStringAsFixed(2)}",
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>PayScreen()));
+                    },
+                    child: Text(
+                      "Proceed to Pay",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        onClosing: () {},
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: EdgeInsets.only(left: 10,right: 10,top: 10,bottom: 60),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -108,47 +156,45 @@ class _BookingScreenState extends State<BookingScreen> {
                   ],
                 ),
                 SizedBox(height: 15),
-                Text("Distance",style: TextStyle(fontSize: 20),),
-                SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: (){}, child: Text("${distance1.toPrecision(2)} KM"),style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff8843b7), // Background color
-                ),),
-                SizedBox(height: 20),
-                Text("Date Of Parking",style: TextStyle(fontSize: 20),),
-                SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Color(0xff8843b7),
-                      width: 2,
-                    )
+                Row(children: [
+                  Column(
+                    children: [
+                      Text("Distance",style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontSize: 20),),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: (){}, child: Text("${distance1.toPrecision(2)} KM"),style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xff8843b7), // Background color
+                      ),),
+                    ],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text("${date.year} / ${date.month} / ${date.day}"),
+                  Spacer(),
+                  Column(
+                    children: [
+                      Text("Date Of Parking",style: TextStyle(fontSize: 20),),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xff8843b7),
+                          ),
+                          onPressed: ()async{
+                            DateTime? newdate= await showDatePicker(context: context, initialDate: date, firstDate: DateTime(1900), lastDate: DateTime(2050));
+                            if(newdate != null){
+                              setState(() {
+                                date = newdate;
+                              });
+                            }else{
+                              return;
+                            }
+                          }, child: Text("${date.year} / ${date.month} / ${date.day}")),
+                    ],
                   ),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xff8843b7),
-                    ),
-                    onPressed: ()async{
-                      DateTime? newdate= await showDatePicker(context: context, initialDate: date, firstDate: DateTime(1900), lastDate: DateTime(2050));
-                      if(newdate != null){
-                        setState(() {
-                          date = newdate;
-                        });
-                      }else{
-                        return;
-                      }
-                    }, child: Text("Set")),
-                SizedBox(height: 20),
+                ],),
+                SizedBox(height: 30),
                 Container(
                   width: double.infinity,
-                  height: 100,
+                  height: 150,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
@@ -156,10 +202,65 @@ class _BookingScreenState extends State<BookingScreen> {
                       width: 2,
                     )
                   ),
-                  child: Row(
-                    children: [],
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 30,right: 30),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Arrival Time",style: TextStyle(fontSize: 20),),
+                            ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  fixedSize: Size(100, 20),
+                                  backgroundColor: Color(0xff8843b7),
+                                ),
+                                onPressed: ()async{
+                                  TimeOfDay? newtime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 0, minute: 0));
+                                  if(newtime != null){
+                                    setState(() {
+                                      Artime = newtime;
+                                    });
+                                  }else{
+                                    return;
+                                  }
+                                }, child: Text("${Artime.hour}:${Artime.minute}")),
+                          ],
+                        ),
+                        Spacer(),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("Departure Time",style: TextStyle(fontSize: 20),),
+                            ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    fixedSize: Size(100, 20),
+                                  backgroundColor: Color(0xff8843b7),
+                                ),
+                                onPressed: ()async{
+                                  TimeOfDay? newtime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 0, minute: 0));
+                                  if(newtime != null){
+                                    setState(() {
+                                      Detime = newtime;
+                                    });
+                                  }else{
+                                    return;
+                                  }
+                                }, child: Text("${Detime.hour}:${Detime.minute}")),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
+                SizedBox(height: 30),
+                Text("Booking Slots",style: TextStyle(fontSize: 25)),
+                SizedBox(height: 20),
+                Container(
+                  child: Image.asset('images/slot.png'),
+                ),
+
               ],
             ),
           ),
@@ -168,3 +269,6 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 }
+// ElevatedButton(onPressed: (){
+// Navigator.push(context, MaterialPageRoute(builder: (context)=>PayScreen()));
+// }, child: Text("Pay")),

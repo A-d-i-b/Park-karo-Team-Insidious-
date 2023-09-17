@@ -19,7 +19,24 @@ class _SignupScreenState extends State<SignupScreen> {
   final formkey=GlobalKey<FormState>();
 
   final DetailsController detailsController=Get.put(DetailsController());
-
+  MaterialBanner MatBanner(ContentType type,String message){
+    return MaterialBanner(
+      /// need to set following properties for best effect of awesome_snackbar_content
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      forceActionsBelow: true,
+      content: AwesomeSnackbarContent(
+        title: 'Oh Hey!!',
+        message:
+        message,
+        /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+        contentType: type,
+        // to configure for material banner
+        inMaterialBanner: true,
+      ),
+      actions: const [SizedBox.shrink()],
+    );
+  }
   int load=1;
 
   @override
@@ -111,6 +128,14 @@ class _SignupScreenState extends State<SignupScreen> {
                           phoneNumber: '+91${detailsController.phonecontroller.text}',
                           verificationCompleted: (PhoneAuthCredential credential) {},
                           verificationFailed: (FirebaseAuthException e) {
+                            setState(() {
+                              load=1;
+                            });
+                            final materialBanner = MatBanner(ContentType.failure, 'Failed to send Otp Please Check Your Number');
+
+                            ScaffoldMessenger.of(context)
+                              ..hideCurrentMaterialBanner()
+                              ..showMaterialBanner(materialBanner);
                             print(e);
                           },
                           codeSent: (String verificationId, int? resendToken) {

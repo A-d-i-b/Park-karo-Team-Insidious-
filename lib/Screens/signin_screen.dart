@@ -103,6 +103,9 @@ class _SignInState extends State<SignIn> {
                             verificationCompleted: (PhoneAuthCredential credential) {},
                             verificationFailed: (FirebaseAuthException e) {
                               print(e);
+                              setState(() {
+                                load=1;
+                              });
                               final materialBanner = MatBanner(ContentType.failure, 'Failed to send Otp Please Check Your Number');
 
                               ScaffoldMessenger.of(context)
