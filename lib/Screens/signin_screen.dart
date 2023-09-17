@@ -102,6 +102,7 @@ class _SignInState extends State<SignIn> {
                             phoneNumber: '+91${detailsController.phonecontroller.text}',
                             verificationCompleted: (PhoneAuthCredential credential) {},
                             verificationFailed: (FirebaseAuthException e) {
+                              print(e);
                               final materialBanner = MatBanner(ContentType.failure, 'Failed to send Otp Please Check Your Number');
 
                               ScaffoldMessenger.of(context)
