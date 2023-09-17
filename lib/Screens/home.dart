@@ -1,13 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:parkit/Screens/booking_screen.dart';
 import 'package:parkit/utils/card.dart';
-class HomeScreen extends StatelessWidget {
+import 'package:parkit/Controllers/details_controller.dart';
+class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
-  final CollectionReference<Map<String, dynamic>> myCollection = FirebaseFirestore.instance.collection('parkings');
+
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final DetailsController detailsController=Get.put(DetailsController());
+
+  final CollectionReference<Map<String, dynamic>> myCollection = FirebaseFirestore.instance.collection('parkings');
+  void initState() {
+    super.initState();
+    getCurrentLocation();
+
+  }
+  Future<void> getCurrentLocation() async {
+    try {
+      final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
+      final Position position = await geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+
+      detailsController.lat.value = position.latitude;
+      detailsController.lon.value= position.longitude;
+
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  @override
+
   Widget build(BuildContext context) {
     return  Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -82,7 +113,7 @@ class HomeScreen extends StatelessWidget {
                             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
                             return CustomCard(address: data['address'], Name: data['name'], url: data['image'],func: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingScreen(lat: data['lat'],lon: data['lon'],address: data['address'],)));
                             },);
                             //   ListTile(
                             //   title: Text(data['name']), // Access your document fields here.
