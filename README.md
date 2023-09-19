@@ -1,16 +1,4 @@
-# parkit
+Video Demonstration Link :- https://drive.google.com/file/d/1dYvmuGhlwKy9hYiCv9FUMbZDeIkqtfSK/view?usp=sharing
+Apk Link :- https://drive.google.com/file/d/1ndYr3aMz8BmKodtkk_D-y7V626mfqOfa/view?usp=sharing
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Note:- If you face any problem in signing Up, just login with the number 8827564943 and Otp 222222, as this number is in testing mode in firebase. 
