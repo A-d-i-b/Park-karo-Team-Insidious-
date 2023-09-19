@@ -47,10 +47,10 @@ class _SignInState extends State<SignIn> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(left: 30,right: 30),
+            padding: const EdgeInsets.only(left: 30,right: 30),
             child: Column(
             children: [
-                SizedBox(
+                const SizedBox(
                   height: 50,
                 ),
                 Center(
@@ -58,18 +58,18 @@ class _SignInState extends State<SignIn> {
                       height: 200,
                       child: Image.asset('images/logo2.png')),
                 ),
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Center(
-                      child: Text("Welcome Back to ",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold),),
+                      child: Text("Welcome Back to ",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold),),
                     ),
                     Center(
-                      child: Text("ParkIt",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Color(0xff8843b7)),),
+                      child: Text("Park Karo",style: TextStyle(fontSize: 25,fontWeight: FontWeight.bold,color: Color(0xff8843b7)),),
                     ),
                   ],
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 Form(
                     key: key,
                     child: Column(
@@ -82,8 +82,7 @@ class _SignInState extends State<SignIn> {
                             return null;
                           }
                         },),
-                        SizedBox(height: 20),
-
+                        const SizedBox(height: 20),
                       ],
                     )),
                 SizedBox(
@@ -157,7 +156,7 @@ class _SignInState extends State<SignIn> {
                     }
                     // _key.currentState!.validate();
                   },style: ElevatedButton.styleFrom(
-                        backgroundColor:Color(0xff8843b7) ,
+                        backgroundColor:const Color(0xff8843b7) ,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),)
                     ),
                     child: load==1?const Text("Sign In",style: TextStyle(fontSize: 20),):const CircularProgressIndicator(color: Colors.white,),),
@@ -165,10 +164,10 @@ class _SignInState extends State<SignIn> {
                 Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Don't have account ?",style: TextStyle(fontSize: 13),),
+                  const Text("Don't have account ?",style: TextStyle(fontSize: 13),),
                   TextButton(onPressed: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>SignupScreen()));
-                  }, child: Text("SignUp",style: TextStyle(color: Color(0xff8843b7)),)),
+                  }, child: const Text("SignUp",style: TextStyle(color: Color(0xff8843b7)),)),
                 ],
               ),
 

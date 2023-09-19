@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,6 +8,7 @@ import 'package:parkit/Screens/PayScreen.dart';
 import 'dart:math';
 import 'package:vector_math/vector_math.dart' as v;
 import 'package:flutter/cupertino.dart';
+import 'package:parkit/Controllers/fetch_controller.dart';
 class BookingScreen extends StatefulWidget {
   BookingScreen({super.key,required this.lat,required this.lon,required this.address});
   double lat;
@@ -20,11 +20,13 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   final DetailsController detailsController=Get.put(DetailsController());
+  final Fetch fetch = Get.put(Fetch());
   double distance1=0.0;
-  TimeOfDay Artime = TimeOfDay(hour: 0, minute: 0);
-  TimeOfDay Detime = TimeOfDay(hour: 0, minute: 0);
+  TimeOfDay Artime = TimeOfDay(hour: 0, minute: 00);
+  TimeOfDay Detime = TimeOfDay(hour: 0, minute: 00);
   DateTime date = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
   final List<LatLng> routePoints = [];
+  bool select = false;
   @override
   void initState() {
     super.initState();
@@ -66,6 +68,13 @@ class _BookingScreenState extends State<BookingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        foregroundColor:  Color(0xff8843b7),
+        elevation: 5,
+        centerTitle: true,
+        title: Text("Booking",style: TextStyle(color: Color(0xff8843b7)),),
+      ),
       bottomSheet: BottomSheet(
         elevation: 10,
         enableDrag: false,
@@ -126,10 +135,24 @@ class _BookingScreenState extends State<BookingScreen> {
                   width: double.infinity,
                   child:FlutterMap(
                     options: MapOptions(
+
                       center: routePoints.first,
                       zoom: 12.0,
                     ),
                     children: [
+                      MarkerLayer(
+                        markers: [
+                          Marker(
+                              width: 50,
+                              height: 50,
+                              point: LatLng(detailsController.lat.value,detailsController.lon.value), builder: (context)=>Icon(Icons.add_location_alt,color: Colors.red,)),
+                          Marker(
+                              width: 50,
+                              height: 50,
+                              point: LatLng(widget.lat,widget.lon), builder: (context)=>Icon(Icons.add_location_alt,color: Colors.red,))
+
+                        ],
+                      ),
                       TileLayer(
                         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                         userAgentPackageName: 'dev.fleaflet.flutter_map.example',
@@ -158,13 +181,18 @@ class _BookingScreenState extends State<BookingScreen> {
                 SizedBox(height: 15),
                 Row(children: [
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text("Distance",style: TextStyle(
                           fontFamily: 'Montserrat',
                           fontSize: 20),),
                       SizedBox(height: 10),
                       ElevatedButton(
-                        onPressed: (){}, child: Text("${distance1.toPrecision(2)} KM"),style: ElevatedButton.styleFrom(
+                        onPressed: ()async{
+                          // await fetch.postData("Monday", "3", "20");
+                          await fetch.fetchAlbum();
+                          print("hello");
+                        }, child: Text("${distance1.toPrecision(2)} KM"),style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xff8843b7), // Background color
                       ),),
                     ],
@@ -217,7 +245,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   backgroundColor: Color(0xff8843b7),
                                 ),
                                 onPressed: ()async{
-                                  TimeOfDay? newtime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 0, minute: 0));
+                                  TimeOfDay? newtime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 0, minute: 00));
                                   if(newtime != null){
                                     setState(() {
                                       Artime = newtime;
@@ -239,7 +267,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   backgroundColor: Color(0xff8843b7),
                                 ),
                                 onPressed: ()async{
-                                  TimeOfDay? newtime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 0, minute: 0));
+                                  TimeOfDay? newtime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 0, minute: 00));
                                   if(newtime != null){
                                     setState(() {
                                       Detime = newtime;
@@ -257,8 +285,19 @@ class _BookingScreenState extends State<BookingScreen> {
                 SizedBox(height: 30),
                 Text("Booking Slots",style: TextStyle(fontSize: 25)),
                 SizedBox(height: 20),
-                Container(
-                  child: Image.asset('images/slot.png'),
+                GestureDetector(
+                  onTap: (){
+                    if(select==false){
+                      setState(() {
+                        select =true;
+                      });
+                    }else{
+                      setState(() {
+                        select = false;
+                      });
+                    }
+                  },
+                  child: select==false?Image.asset('images/slot.png'):Image.asset('images/slot2.png'),
                 ),
 
               ],

@@ -6,6 +6,8 @@ import 'package:get/get.dart';
 import 'package:parkit/Screens/booking_screen.dart';
 import 'package:parkit/utils/card.dart';
 import 'package:parkit/Controllers/details_controller.dart';
+import 'package:parkit/utils/drawer_utils.dart';
+
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
@@ -36,12 +38,59 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Error: $e');
     }
   }
-
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
 
   Widget build(BuildContext context) {
     return  Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.grey.shade100,
+      drawer: Drawer(
+        backgroundColor: Colors.grey.shade100,
+        child: Column(
+          children: [
+            Container(
+              height: 200,
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.account_circle_outlined,size: 100,color: Color(0xff8843b7),),
+                  SizedBox(height: 20),
+                  Text("Adib",style: TextStyle(fontSize: 30),),
+                ],
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 10,right: 10),
+              child: Divider(
+                thickness: 2,
+                color: Colors.black,
+              ),
+            ),
+            DrawerCard(name: "Profile",),
+            DrawerCard(name: "History",),
+            DrawerCard(name: "Help",),
+            DrawerCard(name: "Language",),
+          ],
+        ),
+      ),
+      appBar: AppBar(
+        leading: IconButton(onPressed: (){
+          _scaffoldKey.currentState!.openDrawer();
+        }, icon: const Icon(Icons.menu,color:Color(0xff8843b7) ,),),
+        centerTitle: true,
+        actions: [
+          IconButton(onPressed: ()async{
+            await FirebaseAuth.instance.signOut().then((value) {
+              Get.toNamed('/login');
+            });
+          }, icon: const Icon(Icons.logout,color: Color(0xff8843b7),))
+
+        ],
+        elevation: 5,
+        backgroundColor: Colors.white,
+        title: const Text("Park Karo",style: TextStyle(color: Color(0xff8843b7)),),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(left: 10,right: 10),
@@ -51,15 +100,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 children: [
                   Container(
-                    child: Icon(Icons.account_circle_outlined,size: 70,color: Color(0xff8843b7),),
                     height: 70,
                     width: 70,
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(40)),
+                    child: const Icon(Icons.account_circle_outlined,size: 70,color: Color(0xff8843b7),),
                   ),
-                  SizedBox(width: 5),
-                  Column(
+                  const SizedBox(width: 5),
+                  const Column(
                     children: [
                       Text("Welcome !!",style: TextStyle(fontSize: 15),),
                       SizedBox(
@@ -68,24 +117,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text("Adib",style: TextStyle(fontSize: 25,color: Color(0xff8843b7)),),
                     ],
                   ),
-                  Spacer(),
-                  IconButton(onPressed: ()async{
-                    await FirebaseAuth.instance.signOut().then((value) {
-                      Get.toNamed('/login');
-                    });
-                  }, icon: Icon(Icons.logout,color: Color(0xff8843b7),))
-                ],
+                  ],
               ),
-              SizedBox(height: 50),
-              Text("Parking Areas",style: TextStyle(fontSize: 20),),
-              SizedBox(height: 10),
+              const SizedBox(height: 50),
+              const Text("Parking Areas",style: TextStyle(fontSize: 20),),
+              const SizedBox(height: 10),
               Expanded(child: Material(
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20)),
                 elevation: 5,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20,bottom: 10),
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(topLeft: Radius.circular(20),topRight: Radius.circular(20))
                   ),
@@ -97,11 +140,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
 
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator(); // Display a loading indicator while waiting for data.
+                          return const Center(child:CircularProgressIndicator()); // Display a loading indicator while waiting for data.
                         }
 
                         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                          return Text('No data available'); // Display a message if there are no documents.
+                          return const Text('No data available'); // Display a message if there are no documents.
                         }
 
                         // If data is available, create a ListView.builder to display the documents.

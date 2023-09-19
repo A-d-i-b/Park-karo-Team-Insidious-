@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     Timer(
-      Duration(seconds: 5),
+      const Duration(seconds: 5),
           () {
             User? user = FirebaseAuth.instance.currentUser;
             if(user!=null){
@@ -39,12 +39,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff210033),
+      backgroundColor: const Color(0xff210033),
       body: Center(
           child: SizedBox(
               height: Get.height,
               width: Get.width,
-              child: Image.asset("images/logo.png"))),
+              child: Image.asset("images/logo2.png"))),
     );
   }
 }

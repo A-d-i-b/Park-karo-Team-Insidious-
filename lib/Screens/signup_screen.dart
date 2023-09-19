@@ -46,18 +46,18 @@ class _SignupScreenState extends State<SignupScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(left: 30,right: 30),
+            padding: const EdgeInsets.only(left: 30,right: 30),
             child: Column(
               children: [
-                SizedBox(height: 50),
-                Row(
+                const SizedBox(height: 50),
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Center(
                       child: Text("Welcome to ",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold),),
                     ),
                     Center(
-                      child: Text("ParkIt",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Color(0xff8843b7)),),
+                      child: Text("Park Karo",style: TextStyle(fontSize: 30,fontWeight: FontWeight.bold,color: Color(0xff8843b7)),),
                     ),
                   ],
                 ),
@@ -76,9 +76,15 @@ class _SignupScreenState extends State<SignupScreen> {
                             return null;
                           }
                         },),
-                        SizedBox(height: 30),
-                        Textfield(controller: detailsController.namecontroller, hint: "Name"),
-                        SizedBox(height: 30),
+                        const SizedBox(height: 30),
+                        Textfield(controller: detailsController.namecontroller, hint: "Name",function: (value){
+                          if(value==null){
+                            return "Please Enter your name";
+                          }else{
+                            return null;
+                          }
+                        },),
+                        const SizedBox(height: 30),
                         Textfield(controller: detailsController.phonecontroller, hint: "Phone Number",function: (value){
                           if(value!.isEmpty||!RegExp(r"^(\+\d{1,3}[- ]?)?\d{10}$").hasMatch(value)){
                             return "Enter Correct Phone number";
@@ -86,7 +92,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             return null;
                           }
                         },),
-                        SizedBox(height: 50),
+                        const SizedBox(height: 50),
                       ],
                     ) ),
                 SizedBox(
@@ -151,7 +157,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     }
 
                   },style: ElevatedButton.styleFrom(
-                    backgroundColor:Color(0xff8843b7) ,
+                    backgroundColor:const Color(0xff8843b7) ,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15),)
                   ),
                     child: load==1?const Text("Sign Up",style: TextStyle(fontSize: 20),):const CircularProgressIndicator(
@@ -161,10 +167,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Already having account ?",style: TextStyle(fontSize: 13),),
+                    const Text("Already having account ?",style: TextStyle(fontSize: 13),),
                     TextButton(onPressed: (){
                       Get.toNamed('/login');
-                    }, child: Text("Login",style: TextStyle(color: Color(0xff8843b7)),)),
+                    }, child: const Text("Login",style: TextStyle(color: Color(0xff8843b7)),)),
                   ],
                 ),
               ],

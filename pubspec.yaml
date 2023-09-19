@@ -47,11 +47,13 @@ dependencies:
   latlong2: ^0.9.0
   flutter_map: ^5.0.0
   paytm_allinonesdk: ^1.1.7
+  http: ^1.1.0
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
