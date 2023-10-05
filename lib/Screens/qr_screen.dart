@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parkit/Screens/home.dart';
+import 'package:parkit/Screens/navigation_screen.dart';
 
 
 class QRScreen extends StatelessWidget {
@@ -13,7 +13,7 @@ class QRScreen extends StatelessWidget {
         centerTitle: true,
         title: Text('Booking Details'),
         leading: IconButton(onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>Screen()));
         }, icon: Icon(Icons.home,color: Colors.white,),),
       ),
       body: Container(

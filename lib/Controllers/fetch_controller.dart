@@ -5,13 +5,24 @@ import 'package:http/http.dart' as http;
 class Fetch extends GetxController{
   final _response = ''.obs;
   String get response => _response.value;
-  Future<dynamic> fetchAlbum() async {
+  Future<dynamic> fetchAlbum(String data,int data2,double data3) async {
+    final body = {
+      'day_of_week': data,
+      'hour_of_day': data2,
+      'popularity_percent_normal': data3,
+    };
+    // final headers = {
+    //   'Content-Type': 'application/json', // Set the content type based on your server's requirements
+    // };
     final response = await http
-        .get(Uri(
+        .post(Uri(
       scheme: 'http',
       host: '127.0.0.1',
       port: 5000,
-    ));
+    ),
+      body: body,
+      // headers: headers
+    );
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -20,6 +31,8 @@ class Fetch extends GetxController{
     } else {
       // If the server did not return a 200 OK response,
       // then throw an exception.
+      print('Error: ${response.statusCode}');
+      print('Error message: ${response.body}');
       throw Exception('Failed to load album');
     }
   }

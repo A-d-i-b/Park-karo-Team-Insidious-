@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parkit/Controllers/details_controller.dart';
+import 'package:parkit/Screens/navigation_screen.dart';
 import 'package:parkit/Screens/signup_screen.dart';
 import 'package:pinput/pinput.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -46,13 +47,13 @@ class OtpScreen extends StatelessWidget {
                       PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: detailsController.otp.value, smsCode: detailsController.sms.value);
                     await auth.signInWithCredential(credential);
                     if(page==1){
-                      await FirebaseFirestore.instance.collection("users").doc(detailsController.phonecontroller.text).set({
+                      await FirebaseFirestore.instance.collection("users").doc("+91${detailsController.phonecontroller.text}").set({
                         "reg":true,
                         "name":detailsController.namecontroller.text,
                         "email":detailsController.emailcontroller.text,
-                      }).then((value) => Get.toNamed('/home'));
+                      }).then((value) => Navigator.push(context, MaterialPageRoute(builder: (context)=>Screen())));
                     }else{
-                      Get.toNamed('/home');
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>Screen()));
                     }
 
                     }catch(e){

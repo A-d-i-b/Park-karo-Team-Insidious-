@@ -102,7 +102,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ElevatedButton(onPressed: () async{
                     if(formkey.currentState!.validate()){
                       try{
-                        await FirebaseFirestore.instance.collection("users").doc(detailsController.phonecontroller.text).get().then((value) {
+                        await FirebaseFirestore.instance.collection("users").doc("+91${detailsController.phonecontroller.text}").get().then((value) {
                           if(value.get("reg")==true){
                             final materialBanner = MaterialBanner(
                               /// need to set following properties for best effect of awesome_snackbar_content

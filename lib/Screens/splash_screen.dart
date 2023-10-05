@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:parkit/Screens/home.dart';
+import 'package:parkit/Screens/navigation_screen.dart';
 import 'package:parkit/Screens/signup_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
           () {
             User? user = FirebaseAuth.instance.currentUser;
             if(user!=null){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>Screen()));
             }else{
               Navigator.pushReplacement(
                 context,

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -5,15 +7,22 @@ import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:parkit/Controllers/details_controller.dart';
 import 'package:parkit/Screens/PayScreen.dart';
-import 'dart:math';
-import 'package:vector_math/vector_math.dart' as v;
+import 'package:parkit/Screens/slot_screen.dart';
+import 'dart:math' as math;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:parkit/Controllers/fetch_controller.dart';
+import 'package:http/http.dart' as http;
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:parkit/utils/textfield_utils.dart';
+
+
 class BookingScreen extends StatefulWidget {
-  BookingScreen({super.key,required this.lat,required this.lon,required this.address});
+  BookingScreen({super.key,required this.lat,required this.lon,required this.address,required this.name});
   double lat;
   double lon;
   String address;
+  String name;
   @override
   State<BookingScreen> createState() => _BookingScreenState();
 }
@@ -21,48 +30,84 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   final DetailsController detailsController=Get.put(DetailsController());
   final Fetch fetch = Get.put(Fetch());
-  double distance1=0.0;
+
   TimeOfDay Artime = TimeOfDay(hour: 0, minute: 00);
   TimeOfDay Detime = TimeOfDay(hour: 0, minute: 00);
   DateTime date = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
+  double totalDistance = 0.0;
   final List<LatLng> routePoints = [];
   bool select = false;
+  String selectedItem='10AM-11AM';
   @override
   void initState() {
     super.initState();
-    calculateDistance(detailsController.lat.value, detailsController.lon.value,widget.lat, widget.lon);
     add();
+  }
+  MaterialBanner MatBanner(ContentType type,String message){
+    return MaterialBanner(
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      forceActionsBelow: true,
+      content: AwesomeSnackbarContent(
+        title: 'Oh Hey!!',
+        message:
+        message,
+        contentType: type,
+        inMaterialBanner: true,
+      ),
+      actions: const [SizedBox.shrink()],
+    );
   }
 
   Future<void> add()async {
-    setState(() {
-      routePoints.add(LatLng(detailsController.lat.value, detailsController.lon.value));
-      routePoints.add(LatLng(widget.lat, widget.lon));
-    });
+    String apiKey = '5b3ce3597851110001cf6248d80982513ccf40168effb0dea5316031';
+    LatLng origin = LatLng(detailsController.lat.value, detailsController.lon.value);
+    LatLng destination = LatLng(widget.lat, widget.lon);
+    String apiUrl =
+        'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=${origin.longitude},${origin.latitude}&end=${destination.longitude},${destination.latitude}';
+    final response = await http.get(Uri.parse(apiUrl));
+    if (response.statusCode == 200){
+      final decoded = json.decode(response.body);
+      final List<dynamic> coordinates = decoded['features'][0]['geometry']['coordinates'];
+      double distance = 0.0;
+      setState(() {
+        routePoints.clear();
+        routePoints.addAll(coordinates.map((coord) => LatLng(coord[1], coord[0])));
+        for (int i = 0; i < routePoints.length - 1; i++) {
+          distance += getDistance(routePoints[i], routePoints[i + 1]);
+        }
 
+        totalDistance = distance / 1000.0;
+      });
+    }
   }
-  void calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    const double earthRadius = 6371; // Earth's radius in kilometers (use 3959 for miles)
+  double getDistance(LatLng point1, LatLng point2) {
+    // Using the Haversine formula to calculate distance between two points
+    const double earthRadius = 6371000;
 
-    // Convert latitude and longitude from degrees to radians
-    double lat1Rad = v.radians(lat1);
-    double lon1Rad = v.radians(lon1);
-    double lat2Rad = v.radians(lat2);
-    double lon2Rad =  v.radians(lon2);
+    double lat1 = point1.latitude;
+    double lon1 = point1.longitude;
+    double lat2 = point2.latitude;
+    double lon2 = point2.longitude;
 
-    // Haversine formula
-    double dLat = lat2Rad - lat1Rad;
-    double dLon = lon2Rad - lon1Rad;
-    double a = pow(sin(dLat / 2), 2) +
-        cos(lat1Rad) * cos(lat2Rad) * pow(sin(dLon / 2), 2);
-    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double dLat = (lat2 - lat1) * (math.pi / 180.0);
+    double dLon = (lon2 - lon1) * (math.pi / 180.0);
 
-    // Calculate the distance
-    double distance = earthRadius * c;
-    setState(() {
-      distance1=distance;
-    });
-     // Distance in kilometers
+    double a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(lat1 * (math.pi / 180.0)) * math.cos(lat2 * (math.pi / 180.0)) * math.sin(dLon / 2) * math.sin(dLon / 2);
+
+    double c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+
+    return earthRadius * c;
+  }
+  void launchGoogleMapsDirections({required LatLng origin, required LatLng destination}) async {
+    final url = "https://www.google.com/maps/dir/?api=1&origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}";
+
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
@@ -80,9 +125,9 @@ class _BookingScreenState extends State<BookingScreen> {
         enableDrag: false,
         builder: (context) {
           return Padding(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               height: MediaQuery.of(context).size.height * 0.06,
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
@@ -92,8 +137,8 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "\Rs. Amount",
+                  const Text(
+                    "\Rs. 100",
                     // "\Rs. ${totalAmount.toStringAsFixed(2)}",
                     style: TextStyle(
                       fontFamily: 'Montserrat',
@@ -104,9 +149,30 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>PayScreen()));
+                      if(detailsController.bookDetails.isNotEmpty&&detailsController.name.value!=widget.name){
+                        final materialBanner = MatBanner(ContentType.failure, 'Please Select the Slots');
+
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentMaterialBanner()
+                          ..showMaterialBanner(materialBanner);
+                        print("Please select the slots");
+                      }else if(detailsController.vehiclecontroller.text.isEmpty){
+                        final materialBanner = MatBanner(ContentType.warning, 'Please Enter your vehicle number');
+
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentMaterialBanner()
+                          ..showMaterialBanner(materialBanner);
+                      }else if(detailsController.bookDetails.isEmpty){
+                        final materialBanner = MatBanner(ContentType.warning, 'Please Select the slots');
+
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentMaterialBanner()
+                          ..showMaterialBanner(materialBanner);
+                      }else{
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>PayScreen(amount: 100,)));
+                      }
                     },
-                    child: Text(
+                    child: const Text(
                       "Proceed to Pay",
                       style: TextStyle(
                         color: Colors.white,
@@ -136,21 +202,32 @@ class _BookingScreenState extends State<BookingScreen> {
                   child:FlutterMap(
                     options: MapOptions(
 
-                      center: routePoints.first,
+                      center: LatLng(detailsController.lat.value, detailsController.lon.value),
                       zoom: 12.0,
                     ),
                     children: [
                       MarkerLayer(
+                        anchorPos: AnchorPos.align(AnchorAlign.center),
+                        rotate: false,
                         markers: [
                           Marker(
-                              width: 50,
-                              height: 50,
-                              point: LatLng(detailsController.lat.value,detailsController.lon.value), builder: (context)=>Icon(Icons.add_location_alt,color: Colors.red,)),
+                            width: 40.0,
+                            height: 40.0,
+                            point: routePoints.isNotEmpty ? LatLng(detailsController.lat.value, detailsController.lon.value) : LatLng(0, 0),
+                            builder: (ctx) => const Icon(
+                              Icons.location_on,
+                              color: Colors.green,
+                            ),
+                          ),
                           Marker(
-                              width: 50,
-                              height: 50,
-                              point: LatLng(widget.lat,widget.lon), builder: (context)=>Icon(Icons.add_location_alt,color: Colors.red,))
-
+                            width: 40.0,
+                            height: 40.0,
+                            point: routePoints.isNotEmpty ? LatLng(widget.lat, widget.lon) : LatLng(0, 0),
+                            builder: (ctx) => const Icon(
+                              Icons.location_on,
+                              color: Colors.red,
+                            ),
+                          ),
                         ],
                       ),
                       TileLayer(
@@ -168,6 +245,13 @@ class _BookingScreenState extends State<BookingScreen> {
                     ],
                   ),
                 ),
+                SizedBox(height: 20),
+                ElevatedButton(onPressed: (){
+                  launchGoogleMapsDirections(
+                    origin: LatLng(detailsController.lat.value, detailsController.lon.value), // Replace with your origin coordinates
+                    destination: LatLng(widget.lat, widget.lon), // Replace with your destination coordinates
+                  );
+                }, child: Text("Open Navigation")),
                 SizedBox(height: 20),
                 Text("Address",style: TextStyle(fontSize: 20),),
                 SizedBox(height: 10),
@@ -190,34 +274,13 @@ class _BookingScreenState extends State<BookingScreen> {
                       ElevatedButton(
                         onPressed: ()async{
                           // await fetch.postData("Monday", "3", "20");
-                          await fetch.fetchAlbum();
                           print("hello");
-                        }, child: Text("${distance1.toPrecision(2)} KM"),style: ElevatedButton.styleFrom(
+                        }, child: Text("${totalDistance.toPrecision(2)} KM"),style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xff8843b7), // Background color
                       ),),
                     ],
                   ),
                   Spacer(),
-                  Column(
-                    children: [
-                      Text("Date Of Parking",style: TextStyle(fontSize: 20),),
-                      SizedBox(height: 10),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff8843b7),
-                          ),
-                          onPressed: ()async{
-                            DateTime? newdate= await showDatePicker(context: context, initialDate: date, firstDate: DateTime(1900), lastDate: DateTime(2050));
-                            if(newdate != null){
-                              setState(() {
-                                date = newdate;
-                              });
-                            }else{
-                              return;
-                            }
-                          }, child: Text("${date.year} / ${date.month} / ${date.day}")),
-                    ],
-                  ),
                 ],),
                 SizedBox(height: 30),
                 Container(
@@ -238,44 +301,44 @@ class _BookingScreenState extends State<BookingScreen> {
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Arrival Time",style: TextStyle(fontSize: 20),),
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  fixedSize: Size(100, 20),
-                                  backgroundColor: Color(0xff8843b7),
+                            Text("Time Slot",style: TextStyle(fontSize: 20),),
+                            DropdownButton<String>(
+                                underline: Container( // Use underline property to set border
+                                  height: 2,
+                                  color: Color(0xff8843b7), // Set the border color
                                 ),
-                                onPressed: ()async{
-                                  TimeOfDay? newtime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 0, minute: 00));
-                                  if(newtime != null){
-                                    setState(() {
-                                      Artime = newtime;
-                                    });
-                                  }else{
-                                    return;
-                                  }
-                                }, child: Text("${Artime.hour}:${Artime.minute}")),
+                                value: selectedItem,
+                                items: detailsController.items.map((String e) {
+                                  return DropdownMenuItem<String>(
+                                      value: e,
+                                      child: Text(e));
+                                }).toList(), onChanged: (String? value){
+                              setState(() {
+                                selectedItem=value!;
+                              });
+                            }),
                           ],
                         ),
                         Spacer(),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Departure Time",style: TextStyle(fontSize: 20),),
+                            Text("Date of Parking",style: TextStyle(fontSize: 20),),
+                            SizedBox(height: 10),
                             ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                    fixedSize: Size(100, 20),
                                   backgroundColor: Color(0xff8843b7),
                                 ),
                                 onPressed: ()async{
-                                  TimeOfDay? newtime = await showTimePicker(context: context, initialTime: TimeOfDay(hour: 0, minute: 00));
-                                  if(newtime != null){
+                                  DateTime? newdate= await showDatePicker(context: context, initialDate: date, firstDate: DateTime(1900), lastDate: DateTime(2050));
+                                  if(newdate != null){
                                     setState(() {
-                                      Detime = newtime;
+                                      date = newdate;
                                     });
                                   }else{
                                     return;
                                   }
-                                }, child: Text("${Detime.hour}:${Detime.minute}")),
+                                }, child: Text("${date.year} / ${date.month} / ${date.day}")),
                           ],
                         )
                       ],
@@ -283,23 +346,37 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                 ),
                 SizedBox(height: 30),
+                Textfield(controller: detailsController.vehiclecontroller, hint: "Enter your Vehicle Number",),
+                SizedBox(height: 30),
                 Text("Booking Slots",style: TextStyle(fontSize: 25)),
                 SizedBox(height: 20),
-                GestureDetector(
-                  onTap: (){
-                    if(select==false){
-                      setState(() {
-                        select =true;
-                      });
+                ElevatedButton(onPressed:(){
+                  print(widget.name);
+                  if(detailsController.name.value!=widget.name){
+                    if(detailsController.bookDetails.isEmpty){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>Home(name: widget.name,time: selectedItem,date:"${date.day}-${date.month}-${date.year}",address: widget.address,)));
                     }else{
-                      setState(() {
-                        select = false;
-                      });
-                    }
-                  },
-                  child: select==false?Image.asset('images/slot.png'):Image.asset('images/slot2.png'),
-                ),
+                      final materialBanner = MatBanner(ContentType.warning, 'Please Select the slots from one parking area');
 
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentMaterialBanner()
+                        ..showMaterialBanner(materialBanner);
+                      print('Please book from one place');
+                    }
+                  }else if(detailsController.vehiclecontroller.text.isEmpty){
+                    final materialBanner = MatBanner(ContentType.warning, 'Please enter the vehicle number');
+
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentMaterialBanner()
+                      ..showMaterialBanner(materialBanner);
+                  }else if(detailsController.name.value==''||detailsController.name.value==widget.name){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>Home(name: widget.name,time: selectedItem,date:"${date.day}-${date.month}-${date.year}",address: widget.address,)));
+                  }
+                }, child: Text("Booking screen"),),
+                // ElevatedButton(onPressed: (){
+                //   print(detailsController.bookDetails.value);
+                // }, child: Text('print details')),
+                SizedBox(height: 30),
               ],
             ),
           ),
@@ -308,6 +385,3 @@ class _BookingScreenState extends State<BookingScreen> {
     );
   }
 }
-// ElevatedButton(onPressed: (){
-// Navigator.push(context, MaterialPageRoute(builder: (context)=>PayScreen()));
-// }, child: Text("Pay")),

@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:parkit/Screens/booking_screen.dart';
 import 'package:parkit/utils/card.dart';
 import 'package:parkit/Controllers/details_controller.dart';
-import 'package:parkit/utils/drawer_utils.dart';
+
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -17,12 +17,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final DetailsController detailsController=Get.put(DetailsController());
-
+  String name='';
   final CollectionReference<Map<String, dynamic>> myCollection = FirebaseFirestore.instance.collection('parkings');
   void initState() {
     super.initState();
     getCurrentLocation();
-
+    nameFetch();
   }
   Future<void> getCurrentLocation() async {
     try {
@@ -38,6 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Error: $e');
     }
   }
+
+  void nameFetch()async{
+    await FirebaseFirestore.instance.collection('users').doc("${FirebaseAuth.instance.currentUser?.phoneNumber}").get().then((value) {
+      setState(() {
+        name=value.get('name');
+      });
+    });
+  }
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
 
@@ -45,58 +53,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return  Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.grey.shade100,
-      drawer: Drawer(
-        backgroundColor: Colors.grey.shade100,
-        child: Column(
-          children: [
-            Container(
-              height: 200,
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.account_circle_outlined,size: 100,color: Color(0xff8843b7),),
-                  SizedBox(height: 20),
-                  Text("Adib",style: TextStyle(fontSize: 30),),
-                ],
-              ),
-            ),
-            const Padding(
-              padding: EdgeInsets.only(left: 10,right: 10),
-              child: Divider(
-                thickness: 2,
-                color: Colors.black,
-              ),
-            ),
-            DrawerCard(name: "Profile",),
-            DrawerCard(name: "History",),
-            DrawerCard(name: "Help",),
-            DrawerCard(name: "Language",),
-          ],
-        ),
-      ),
-      appBar: AppBar(
-        leading: IconButton(onPressed: (){
-          _scaffoldKey.currentState!.openDrawer();
-        }, icon: const Icon(Icons.menu,color:Color(0xff8843b7) ,),),
-        centerTitle: true,
-        actions: [
-          IconButton(onPressed: ()async{
-            await FirebaseAuth.instance.signOut().then((value) {
-              Get.toNamed('/login');
-            });
-          }, icon: const Icon(Icons.logout,color: Color(0xff8843b7),))
-
-        ],
-        elevation: 5,
-        backgroundColor: Colors.white,
-        title: const Text("Park Karo",style: TextStyle(color: Color(0xff8843b7)),),
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(left: 10,right: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(height: 20),
+              Center(child: Text("Park Karo",style: TextStyle(fontSize: 20,color: Color(0xff8843b7),fontWeight: FontWeight.bold),)),
+              Divider(
+                thickness: 1,
+                color: Colors.black,
+              ),
+              SizedBox(height: 30),
               Row(
                 children: [
                   Container(
@@ -108,13 +77,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: const Icon(Icons.account_circle_outlined,size: 70,color: Color(0xff8843b7),),
                   ),
                   const SizedBox(width: 5),
-                  const Column(
+                  Column(
                     children: [
                       Text("Welcome !!",style: TextStyle(fontSize: 15),),
                       SizedBox(
                         height: 5
                       ),
-                      Text("Adib",style: TextStyle(fontSize: 25,color: Color(0xff8843b7)),),
+                      Text(name,style: TextStyle(fontSize: 25,color: Color(0xff8843b7)),),
                     ],
                   ),
                   ],
@@ -156,13 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             Map<String, dynamic> data = document.data() as Map<String, dynamic>;
 
                             return CustomCard(address: data['address'], Name: data['name'], url: data['image'],func: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingScreen(lat: data['lat'],lon: data['lon'],address: data['address'],)));
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>BookingScreen(lat: data['lat'],lon: data['lon'],address: data['address'],name: data['name'],)));
                             },);
-                            //   ListTile(
-                            //   title: Text(data['name']), // Access your document fields here.
-                            //   subtitle: Text(data['address']),
-                            //   // Add more widgets to display other document fields as needed.
-                            // );
                           },
                         );
                       },

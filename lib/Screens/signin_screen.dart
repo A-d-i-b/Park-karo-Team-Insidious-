@@ -23,7 +23,7 @@ class _SignInState extends State<SignIn> {
   int load=1;
   MaterialBanner MatBanner(ContentType type,String message){
     return MaterialBanner(
-      /// need to set following properties for best effect of awesome_snackbar_content
+
       elevation: 0,
       backgroundColor: Colors.transparent,
       forceActionsBelow: true,
@@ -31,9 +31,9 @@ class _SignInState extends State<SignIn> {
         title: 'Oh Hey!!',
         message:
         message,
-        /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
+
         contentType: type,
-        // to configure for material banner
+
         inMaterialBanner: true,
       ),
       actions: const [SizedBox.shrink()],
@@ -95,7 +95,7 @@ class _SignInState extends State<SignIn> {
                     });
                     print(detailsController.phonecontroller.text);
                     try{
-                      await FirebaseFirestore.instance.collection("users").doc(detailsController.phonecontroller.text).get().then((value) async {
+                      await FirebaseFirestore.instance.collection("users").doc("+91${detailsController.phonecontroller.text}").get().then((value) async {
                         if(value.get("reg")==true){
                           await FirebaseAuth.instance.verifyPhoneNumber(
                             phoneNumber: '+91${detailsController.phonecontroller.text}',
