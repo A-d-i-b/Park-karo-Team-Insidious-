@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:parkit/Controllers/details_controller.dart';
 import 'package:get/get.dart';
@@ -23,25 +24,54 @@ class _SeatModelState extends State<SeatModel> {
     super.initState();
     isBooked();
   }
+
+  MaterialBanner MatBanner(ContentType type,String message){
+    return MaterialBanner(
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      forceActionsBelow: true,
+      content: AwesomeSnackbarContent(
+        title: 'Oh Hey!!',
+        message:
+        message,
+        contentType: type,
+        inMaterialBanner: true,
+      ),
+      actions: const [SizedBox.shrink()],
+    );
+  }
   bool b= true;
   void isBooked() async{
-    try{
-      await FirebaseFirestore.instance.collection('parkings').doc(widget.name).collection('Booked').doc(widget.date).get().then((value){
-        try{
-          if(value.get(widget.time)['${widget.i}${widget.j}lane${widget.lane}']!=null){
-            setState(() {
-              booked=true;
-              b=false;
-            });
-          }
-        }catch(e){
-          print("not found");
-          print(value.get('10am'));
-        }
+    for (int i = 0; i < detailsController.timeSlots.length; i++) {
+    try {
+        await FirebaseFirestore.instance.collection('parkings').doc(widget.name)
+            .collection('Booked').doc(widget.date).get()
+            .then((value) {
+          try {
+            if (value.get(detailsController.timeSlots[i])['${widget.i}${widget
+                .j}lane${widget.lane}'] != null) {
+              setState(() {
+                booked = true;
+                b = false;
+              });
+              detailsController.booked[detailsController.timeSlots[i]]="${widget.i}${widget.j}lane${widget.lane}";
 
-      });
-    }catch(e){
-    }
+
+              // final materialBanner = MatBanner(ContentType.warning,
+              //     'Selected Slot is booked for ${detailsController
+              //         .timeSlots[i]}');
+              //
+              // ScaffoldMessenger.of(context)
+              //   ..hideCurrentMaterialBanner()
+              //   ..showMaterialBanner(materialBanner);
+            }
+          } catch (e) {
+            print("not found");
+            print(value.get('10am'));
+          }
+        });
+      } catch (e) {}
+  }
 
 
     // if(detailsController.bookDetails['${widget.i}${widget.j}lane${widget.lane}']==true){
@@ -65,7 +95,6 @@ class _SeatModelState extends State<SeatModel> {
           detailsController.bookDetails['${widget.i}${widget.j}lane${widget.lane}']= detailsController.vehiclecontroller.text;
           detailsController.name.value=widget.name;
           detailsController.date.value=widget.date;
-          detailsController.time.value=widget.time;
         }else{
           detailsController.bookDetails.remove('${widget.i}${widget.j}lane${widget.lane}');
           setState(() {

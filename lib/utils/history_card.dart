@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class HistoryCard extends StatelessWidget {
   HistoryCard({super.key,required this.date,required this.timeSlot,required this.address,required this.slot,required this.name});
   String date;
-  String timeSlot;
+  List<Widget> timeSlot;
   String address;
   String name;
   List<Widget> slot;
@@ -28,12 +28,23 @@ class HistoryCard extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 10),
-              Row(
-                children: [
-                  Text("Time: ",style:TextStyle(fontSize: 15,color: Colors.black),),
-                  Text("$timeSlot",style:TextStyle(fontSize: 15,color: Colors.white),),
-                ],
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    Text("Time Slots: ",style:TextStyle(fontSize: 15,color: Colors.black),),
+                    Row(
+                      children: timeSlot,
+                    ),
+                  ],
+                ),
               ),
+              // Row(
+              //   children: [
+              //     Text("Time: ",style:TextStyle(fontSize: 15,color: Colors.black),),
+              //     Text("$timeSlot",style:TextStyle(fontSize: 15,color: Colors.white),),
+              //   ],
+              // ),
               SizedBox(height: 10),
               Row(
                 children: [

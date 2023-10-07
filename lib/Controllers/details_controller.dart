@@ -1,8 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 class DetailsController extends GetxController{
   final emailcontroller = TextEditingController();
   final namecontroller = TextEditingController();
@@ -17,7 +15,7 @@ class DetailsController extends GetxController{
   RxString name=''.obs;
   RxString address=''.obs;
   RxString date=''.obs;
-  RxString time=''.obs;
+  Map booked={};
   List<String> items =[
     '12AM-1AM',
     '1AM-2AM',
@@ -45,6 +43,7 @@ class DetailsController extends GetxController{
     '11PM-12AM',
   ];
   RxString homeName=''.obs;
+  RxList timeSlots=[].obs;
 
 
 

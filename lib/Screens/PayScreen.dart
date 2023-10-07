@@ -37,11 +37,14 @@ class _PayScreenState extends State<PayScreen> {
       orderId: response.orderId,
     );
     if(detailsController.bookDetails.isNotEmpty){
-      await FirebaseFirestore.instance.collection('parkings').doc(detailsController.name.value).collection('Booked').doc(detailsController.date.value).set(
-          {
-            detailsController.time.value:Map<String, dynamic>.from(detailsController.bookDetails.value),
-          }, SetOptions(merge: true)
-      );
+      for(int i=0;i<detailsController.timeSlots.length;i++){
+        await FirebaseFirestore.instance.collection('parkings').doc(detailsController.name.value).collection('Booked').doc(detailsController.date.value).set(
+            {
+              detailsController.timeSlots[i]:Map<String, dynamic>.from(detailsController.bookDetails.value),
+            }, SetOptions(merge: true)
+        );
+      }
+
     }
     DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc("${FirebaseAuth.instance.currentUser?.phoneNumber}");
 
@@ -56,7 +59,7 @@ class _PayScreenState extends State<PayScreen> {
       // Add the new map to the history array
       currentHistory.add({
         'date': detailsController.date.value,
-        'time' : detailsController.time.value,
+        'time' : detailsController.timeSlots,
         'name': detailsController.name.value,
         'address': detailsController.address.value,
         'slots': detailsController.bookDetails.keys,
@@ -71,7 +74,7 @@ class _PayScreenState extends State<PayScreen> {
       // Add the new map to the history array
       currentHistory.add({
         'date': detailsController.date.value,
-        'time' : detailsController.time.value,
+        'time' : detailsController.timeSlots,
         'name': detailsController.name.value,
         'address': detailsController.address.value,
         'slots': detailsController.bookDetails.keys,

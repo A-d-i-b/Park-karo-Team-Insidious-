@@ -46,16 +46,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   // Access the 'history' field
                   try{
                     List<Map<String, dynamic>> history = List<Map<String, dynamic>>.from(snapshot.data!['history']);
-                    List<Widget> slot=[];
+
 
                     return ListView.builder(
                       itemCount: history.length,
                       itemBuilder: (context, index) {
+                        List<Widget> slot=[];
+                        List<Widget> timeSlot=[];
                         for(int i=0;i<history[index]['slots'].length;i++){
                           slot.add(Text("${history[index]['slots'][i]}, ",style:TextStyle(fontSize: 15,color: Colors.white)));
                         }
+                        for(int i=0;i<history[index]['time'].length;i++){
+                          timeSlot.add(Text("${history[index]['time'][i]}, ",style:TextStyle(fontSize: 15,color: Colors.white)));
+                        }
                         // Build a ListTile for each history item
-                        return HistoryCard(date: history[index]['date'], timeSlot:history[index]['time'], address: history[index]['address'], slot: slot,name: history[index]['name'],);
+                        return HistoryCard(date: history[index]['date'], timeSlot:timeSlot, address: history[index]['address'], slot: slot,name: history[index]['name'],);
                         // return ListTile(
                         //   title: Text('Date: ${history[index]['date']}'),
                         //   subtitle: Text('Name: ${history[index]['name']}, Time: ${history[index]['time']}'),
