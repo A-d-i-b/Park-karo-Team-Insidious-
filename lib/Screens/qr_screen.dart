@@ -11,13 +11,17 @@ class QRScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Color(0xff8843b7),
         title: Text('Booking Details'),
         leading: IconButton(onPressed: () {
           Navigator.push(context, MaterialPageRoute(builder: (context)=>Screen()));
         }, icon: Icon(Icons.home,color: Colors.white,),),
       ),
       body: Container(
-        child: Center(child: Image.asset('images/qr.png')),
+        child: Center(child: Container(
+            height: double.infinity,
+            color: Color(0xff210033),
+            child: Image.asset('images/qr.png',))),
       ),
     );
   }

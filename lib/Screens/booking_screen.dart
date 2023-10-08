@@ -217,7 +217,8 @@ class _BookingScreenState extends State<BookingScreen> {
                     width: double.infinity,
                     child:FlutterMap(
                       options: MapOptions(
-
+                        maxZoom: 18,
+                        minZoom: 8,
                         center: LatLng(detailsController.lat.value, detailsController.lon.value),
                         zoom: 12.0,
                       ),
@@ -227,8 +228,8 @@ class _BookingScreenState extends State<BookingScreen> {
                           rotate: false,
                           markers: [
                             Marker(
-                              width: 40.0,
-                              height: 40.0,
+                              width: 30.0,
+                              height: 30.0,
                               point: routePoints.isNotEmpty ? LatLng(detailsController.lat.value, detailsController.lon.value) : LatLng(0, 0),
                               builder: (ctx) => const Icon(
                                 Icons.location_on,
@@ -236,8 +237,8 @@ class _BookingScreenState extends State<BookingScreen> {
                               ),
                             ),
                             Marker(
-                              width: 40.0,
-                              height: 40.0,
+                              width: 30.0,
+                              height: 30.0,
                               point: routePoints.isNotEmpty ? LatLng(widget.lat, widget.lon) : LatLng(0, 0),
                               builder: (ctx) => const Icon(
                                 Icons.location_on,
@@ -262,7 +263,11 @@ class _BookingScreenState extends State<BookingScreen> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(onPressed: (){
+                  ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Color(0xff8843b7)),
+                      ),
+                      onPressed: (){
                     launchGoogleMapsDirections(
                       origin: LatLng(detailsController.lat.value, detailsController.lon.value), // Replace with your origin coordinates
                       destination: LatLng(widget.lat, widget.lon), // Replace with your destination coordinates
@@ -304,7 +309,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Colors.grey,
+                        color: Color(0xff8843b7),
                         width: 2,
                       )
                     ),
@@ -314,6 +319,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text("Time Slot",style: TextStyle(fontSize: 20),),
+                          SizedBox(height: 10),
                           MultiSelectDialogField(
                             decoration: BoxDecoration(
                                 border: Border.all(
@@ -391,7 +397,11 @@ class _BookingScreenState extends State<BookingScreen> {
                   SizedBox(height: 30),
                   Text("Booking Slots",style: TextStyle(fontSize: 25)),
                   SizedBox(height: 20),
-                  ElevatedButton(onPressed:(){
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Color(0xff8843b7)),
+                    ),
+                    onPressed:(){
                     print(widget.name);
                     if(detailsController.timeSlots.isEmpty){
                       final materialBanner = MatBanner(ContentType.warning, 'Please Select the time slots ');

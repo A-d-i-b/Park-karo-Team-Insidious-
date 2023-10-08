@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parkit/Screens/qr_screen.dart';
 
 class HistoryCard extends StatelessWidget {
   HistoryCard({super.key,required this.date,required this.timeSlot,required this.address,required this.slot,required this.name});
@@ -7,6 +8,8 @@ class HistoryCard extends StatelessWidget {
   String address;
   String name;
   List<Widget> slot;
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -70,6 +73,15 @@ class HistoryCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              Row(
+                children: [
+                  Text("QR: ",style:TextStyle(fontSize: 15,color: Colors.black),),
+                  TextButton(
+                    onPressed: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>QRScreen()));
+                  }, child: Text("Click here",style:TextStyle(fontSize: 15,color: Colors.white),),)
+                ],
               ),
 
             ],
